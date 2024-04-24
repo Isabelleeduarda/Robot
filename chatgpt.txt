@@ -1,0 +1,61 @@
+import robocode.*;
+
+public class Robot extends AdvancedRobot {
+    
+    public void run() {
+        // Definir cores
+        setBodyColor(java.awt.Color.blue);
+        setGunColor(java.awt.Color.blue);
+        setRadarColor(java.awt.Color.blue);
+        setBulletColor(java.awt.Color.blue);
+        setScanColor(java.awt.Color.blue);
+
+        // Loop de batalha
+        while (true) {
+            // Movimento inteligente
+            move();
+
+            // Rastreamento de inimigos
+            turnRadarRight(360);
+
+            // Ataque
+            fireAtEnemy();
+        }
+    }
+
+    // Método para movimento inteligente
+    public void move() {
+        // Lógica de movimento aqui
+        // Exemplo simples: avançar enquanto mantém a energia acima de um certo limite
+        if (getEnergy() > 50) {
+            ahead(100);
+        } else {
+            back(50);
+        }
+    }
+
+    // Método para atacar o inimigo
+    public void fireAtEnemy() {
+        // Verifica se há um inimigo no radar
+        if (getRadarTurnRemaining() == 0) {
+            setTurnGunRight(360);
+            execute();
+        }
+    }
+
+    // Quando um inimigo é detectado
+    public void onScannedRobot(ScannedRobotEvent e) {
+        // Sistema de mira
+        double absoluteBearing = getHeadingRadians() + e.getBearingRadians();
+        double enemyX = getX() + e.getDistance() * Math.sin(absoluteBearing);
+        double enemyY = getY() + e.getDistance() * Math.cos(absoluteBearing);
+        double bulletPower = Math.min(3.0, getEnergy());
+        fire(bulletPower);
+    }
+
+    // Quando um projétil é detectado
+    public void onHitByBullet(HitByBulletEvent e) {
+        // Desvio de projéteis
+        turnLeft(90 - e.getBearing());
+    }
+}
